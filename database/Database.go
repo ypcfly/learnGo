@@ -8,31 +8,24 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var DBType struct{
+//var DBType struct{
+//	db *sql.DB
+//	err error
+//}
 
-}
-
-func GetConn() {
+func GetConn() *sql.DB {
+	sqlURL := "postgres://postgres:123456@localhost/pgsql?sslmode=disable"
 	fmt.Println("----> get postgresql connection <----")
-	db,err := sql.Open("postgres", "root:123456@tcp(127.0.0.1:5432)/pgsql?charset=utf8")
-	checkErr(err,"-----> open datasources failed <-----")
-	err = db.Ping()
-	checkErr(err,"-----> get connection failed <-----")
+	db, err := sql.Open("postgres", sqlURL)
+	checkErr(err, "-----> open datasources failed <-----")
 
-
-	// 查询
-	queryFunc(db)
-	// 更新
-
-	// 插入
-
-	// 删除
-
+	// 返回数据库连接
+	return db
 }
 func queryFunc(db *sql.DB) {
 	selectById := "select * from user"
-	rows,err := db.Query(selectById)
-	checkErr(err,err.Error())
+	rows, err := db.Query(selectById)
+	checkErr(err, err.Error())
 
 	for rows.Next() {
 		var uid int
@@ -46,8 +39,8 @@ func queryFunc(db *sql.DB) {
 		fmt.Println(created)
 	}
 }
-func checkErr(e error,msg string) {
+func checkErr(e error, msg string) {
 	if e != nil {
-		log.Fatal(e,msg)
+		log.Fatal(e, msg)
 	}
 }

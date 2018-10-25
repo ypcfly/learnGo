@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上传图片</title>
+</head>
+<body>
+    <form method="post" action="/do/upload" enctype="multipart/form-data">
+        <div>
+            <div>
+                <input type="file" name="picture1"/>
+            </div>
+            <div>
+                <input type="file" name="picture2"/>
+            </div>
+            <div>
+                <img width="100px" height="100px" src="{{.}}">
+            </div>
+            <div>
+                <img width="100px" height="100px" src="{{.image2}}">
+            </div>
+            <div>
+                <div>
+                    <button type="submit">上传</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

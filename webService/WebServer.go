@@ -77,7 +77,7 @@ func JsonHandler(writer http.ResponseWriter, request *http.Request) {
 		res.Message = "insert to database success"
 	}
 	// 返回自定义的响应结果
-	writer.Header().Set("Content-Typ", "application/json")
+	writer.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(writer).Encode(res)
 }
 
@@ -89,6 +89,7 @@ func DoUploadActionHandler(writer http.ResponseWriter, request *http.Request) {
 		t.Execute(writer, request)
 	} else {
 		file1, head, err := request.FormFile("picture1")
+
 		checkErr(err)
 		fmt.Println("----> filename: " + head.Filename + " <----")
 		defer file1.Close()
@@ -118,10 +119,10 @@ func DoUploadActionHandler(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		fmt.Println(len)
-		t, _ := template.ParseFiles("template/picture.html")
-		t.Execute(writer, dest+head.Filename)
+		http.ServeFile(writer, request, dest+head.Filename)
+		//writer.Header().Set("content-type","application/json")
+		//json.NewEncoder(writer).Encode("imageURL:" + dest + head.Filename)
 	}
-
 }
 
 // 文件是否存在
@@ -144,8 +145,12 @@ func UploadPictureHandler(writer http.ResponseWriter, request *http.Request) {
 // 根据id查找用户信息
 func QueryByIdHandler(writer http.ResponseWriter, request *http.Request) {
 	log.Println("-----> query by id handler start <-----")
-	//id := request.FormValue("id")
-	id := 1
+
+	fmt.Println(request.URL.RawQuery)
+	params := request.URL.Query()
+	id := params["id"][0]
+
+	//id := 1
 	//query := request.URL.Query()
 	//id := query["id"][0]
 	fmt.Println(id)
@@ -170,12 +175,12 @@ func QueryByIdHandler(writer http.ResponseWriter, request *http.Request) {
 		checkErr(err)
 	}
 	// 将用户数据写回页面
-	t, _ := template.ParseFiles("template/user/userDetail.html")
-	t.Execute(writer, user)
+	//t, _ := template.ParseFiles("template/user/userDetail.html")
+	//t.Execute(writer, user)
 
 	// 返回json数据
-	//writer.Header().Set("content-type","application/json")
-	//json.NewEncoder(writer).Encode(user)
+	writer.Header().Set("content-type", "application/json")
+	json.NewEncoder(writer).Encode(user)
 }
 
 // 添加新用户
@@ -196,6 +201,7 @@ func InsertUserHandler(writer http.ResponseWriter, request *http.Request) {
 	//checkErr(err)
 	//rs,err := stmt.Exec(username,password,address,age,mobile,1)
 	//checkErr(err)
+	//checkErr(stmt.Close())
 	rs, err := db.Exec(insert, username, password, address, age, mobile, 1)
 	checkErr(err)
 	row, err := rs.RowsAffected()
@@ -212,7 +218,7 @@ func InsertUserHandler(writer http.ResponseWriter, request *http.Request) {
 
 // 跳转新加用户页面
 func RenderAddHandler(writer http.ResponseWriter, request *http.Request) {
-	log.Println("-----> insert handler start <-----")
+	log.Println("-----> render to insert page handler start <-----")
 	t, err := template.ParseFiles("template/user/addUser.html")
 	checkErr(err)
 	t.Execute(writer, nil)
